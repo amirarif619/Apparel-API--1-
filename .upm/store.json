@@ -1,0 +1,1 @@
+{"version":2,"languages":{"nodejs-npm":{"specfileHash":"37f351e50ad873a32efde285c463ca15","lockfileHash":"b3834ed4047eac9c8824fca1677e84b7","guessedImports":["cors","pg","stripe","firebase-admin","express","dotenv"],"guessedImportsHash":"a189c2129fca7a23300326b25037d32e"}}}

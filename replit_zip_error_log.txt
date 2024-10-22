@@ -1,0 +1,12 @@
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file .cache/replit/modules/nodejs-20","time":"2024-10-22T17:23:50Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file .cache/replit/modules/replit","time":"2024-10-22T17:23:50Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/.bin/fxparser","time":"2024-10-22T17:23:52Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/.bin/mime","time":"2024-10-22T17:23:52Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/.bin/proto-loader-gen-types","time":"2024-10-22T17:23:52Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/.bin/semver","time":"2024-10-22T17:23:52Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/.bin/uuid","time":"2024-10-22T17:23:52Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/@google-cloud/storage/node_modules/.bin/uuid","time":"2024-10-22T17:24:04Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/gaxios/node_modules/.bin/uuid","time":"2024-10-22T17:24:08Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/google-gax/node_modules/.bin/uuid","time":"2024-10-22T17:24:09Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/send/node_modules/.bin/mime","time":"2024-10-22T17:24:10Z"}
+{"error":".zip archives do not support non-regular files","level":"error","msg":"unable to write file node_modules/teeny-request/node_modules/.bin/uuid","time":"2024-10-22T17:24:11Z"}
