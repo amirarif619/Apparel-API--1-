@@ -132,4 +132,4 @@ dist
 # Replit debugger
 .breakpoints
 
-serviceAccountKey.json
+.vercel

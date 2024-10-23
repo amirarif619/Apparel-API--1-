@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VIPERWEAR Apparel API Documentation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+      h1,
+      h2 {
+        color: #333;
+        text-align: center;
+      }
+      code {
+        background-color: #f4f4f4;
+        padding: 5px;
+        display: inline-block;
+      }
+      pre {
+        background-color: #f4f4f4;
+        padding: 10px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      .endpoint {
+        margin-bottom: 20px;
+      }
+      .endpoint-method {
+        font-weight: bold;
+      }
+      .endpoint-url {
+        color: #007bff;
+      }
+      p {
+  line-height: 1.6; 
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img src="/viper.png" alt="Viper Logo" style="display: block; margin: 0 auto; max-width: 100px;" />
+    </br>
+      <h1>Welcome to the VIPERWEAR Apparel Docs!</h1>
+    </br>
+      <p>
+        Hi there! This documentation
+        provides important details about the API endpoints for managing users, carts, and
+        checkout in the VIPERWEAR Apparel app. 
+      </br>
+      <p>
+      Hope you enjoy!
+      <p>
+      </br>
+        <h1>General Overview</h1>
+        <p>
+          This API is built using Node.js with Express.js as the framework. It connects to a PostgreSQL database hosted on Neon for data storage. The API handles user authentication via Firebase, and Stripe is used for managing payment transactions. The backend is hosted on Vercel.
+        </p>
+
+
+      </p>
+    </br>
+  </br>
+      <h1>API Reference Endpoints</h1>
+</br>
+</br>
+      <h2>GET /api/test</h2>
+      <p>This is just a simple GET route that returns a
+      'Test route is working!' message to confirm the API is running.</p>
+      <p>Example response:</p>
+      <pre>
+{
+  "message": "Test route is working!"
+}
+      </pre>
+      </br>
+  </br>
+</br>
+      <div>
+      </div>
+    </br>
+  </br>
+</br>
+      <div class="endpoint">
+        <h2>POST /api/users</h2>
+        <p>
+          Creates a new user in the database after successful Firebase
+          authentication.
+        </p>
+        <p><span class="endpoint-method">Method:</span> POST</p>
+        <p><span class="endpoint-url">/api/users</span></p>
+        <p>Body:</p>
+        <pre>
+{
+  "firebase_uid": "string",
+  "email": "string"
+}
+        </pre>
+        <p>Example response:</p>
+        <pre>
+{
+  "id": 1,
+  "firebase_uid": "exampleUID",
+  "email": "user@example.com"
+}
+        </pre>
+      </div>
+    </br>
+  </br>
+</br>
+      <div>
+        <div class="endpoint">
+          <h2>POST /api/login</h2>
+          <p>
+            Authenticates the user using Firebase credentials and returns a session token
+            or error message if authentication fails.
+          </p>
+          <p><span class="endpoint-method">Method:</span> POST</p>
+          <p><span class="endpoint-url">/api/login</span></p>
+          <p>Body:</p>
+          <pre>
+        {
+          "email": "string",
+          "password": "string"
+        }
+          </pre>
+          <p>Example response:</p>
+          <pre>
+        {
+          "status": "success",
+          "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+        }
+          </pre>
+          <p>Error response:</p>
+          <pre>
+        {
+          "status": "error",
+          "message": "Invalid credentials"
+        }
+          </pre>
+        </div>
+
+      </div>
+    </br>
+  </br>
+</br>
+
+      <div class="endpoint">
+        <h2>POST /api/cart</h2>
+        <p>
+          Adds an item to the user's cart or updates the quantity if the item
+          already exists.
+        </p>
+        <p><span class="endpoint-method">Method:</span> POST</p>
+        <p><span class="endpoint-url">/api/cart</span></p>
+        <p>Body:</p>
+        <pre>
+{
+  "product_variant_id": 123,
+  "quantity": 2
+}
+        </pre>
+        <p>Example response:</p>
+        <pre>
+{
+  "id": 1,
+  "product_variant_id": 123,
+  "quantity": 2
+}
+        </pre>
+      </div>
+    </br>
+  </br>
+</br>
+      <div class="endpoint">
+        <h2>GET /api/cart</h2>
+        <p>Fetches all items in the user's cart.</p>
+        <p><span class="endpoint-method">Method:</span> GET</p>
+        <p><span class="endpoint-url">/api/cart</span></p>
+        <p>Example response:</p>
+        <pre>
+[
+  {
+    "id": 1,
+    "product_variant_id": 123,
+    "quantity": 2
+  }
+]
+        </pre>
+      </div>
+    </br>
+  </br>
+</br>
+      <div class="endpoint">
+        <h2>PUT /api/cart/:id</h2>
+        <p>Updates the quantity of a specific item in the user's cart.</p>
+        <p><span class="endpoint-method">Method:</span> PUT</p>
+        <p><span class="endpoint-url">/api/cart/:id</span></p>
+        <p>Body:</p>
+        <pre>
+{
+  "quantity": 3
+}
+        </pre>
+        <p>Example response:</p>
+        <pre>
+{
+  "status": "success",
+  "data": {
+    "id": 1,
+    "product_variant_id": 123,
+    "quantity": 3
+  }
+}
+        </pre>
+      </div>
+    </br>
+  </br>
+</br>
+      <div class="endpoint">
+        <h2>DELETE /api/cart/:product_variant_id</h2>
+        <p>Removes a specific item from the user's cart.</p>
+        <p><span class="endpoint-method">Method:</span> DELETE</p>
+        <p><span class="endpoint-url">/api/cart/:product_variant_id</span></p>
+        <p>Example response:</p>
+        <pre>
+{
+  "status": "success",
+  "message": "Item deleted successfully",
+  "data": {
+    "product_variant_id": 123
+  }
+}
+        </pre>
+      </div>
+    </br>
+  </br>
+</br>
+      <h1>Stripe External API Integration</h1>
+    </br>
+
+<p>
+  To handle transactions, we use the external API from Stripe to manage our checkout process and transactions. This ensures secure and seamless payment handling for all orders placed in the VIPERWEAR Apparel app.
+</p>
+
+  </br>
+</br>
+
+      <div class="endpoint">
+        <h2>POST /api/create-checkout-session</h2>
+        <p>Creates a checkout session with Stripe for the specified items.</p>
+        <p><span class="endpoint-method">Method:</span> POST</p>
+        <p><span class="endpoint-url">/api/create-checkout-session</span></p>
+        <p>Body:</p>
+        <pre>
+{
+  "items": [
+    {
+      "name": "Product Name",
+      "image_url": "https://example.com/image.jpg",
+      "price": 2000,
+      "quantity": 2
+    }
+  ]
+}
+        </pre>
+        <p>Example response:</p>
+        <pre>
+{
+  "url": "https://checkout.stripe.com/pay/cs_test_session_id"
+}
+        </pre>
+      </div>
+    </br>
+  </br>
+</br>
+      <div class="endpoint">
+        <h2>GET /api/retrieve-checkout-session/:session_id</h2>
+        <p>Retrieves the details of a Stripe checkout session.</p>
+        <p><span class="endpoint-method">Method:</span> GET</p>
+        <p>
+          <span class="endpoint-url"
+            >/api/retrieve-checkout-session/:session_id</span
+          >
+        </p>
+        <p>Example response:</p>
+        <pre>
+{
+  "id": "cs_test_b1V...",
+  "object": "checkout.session",
+  "amount_total": 4000,
+  "currency": "usd",
+  "payment_status": "paid"
+}
+        </pre>
+      </div>
+    </div>
+  </body>
+</html>

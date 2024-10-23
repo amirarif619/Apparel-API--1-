@@ -4,19 +4,35 @@ const { Pool } = require("pg");
 require("dotenv").config();
 const { DATABASE_URL, SECRET_KEY, STRIPE_SECRET_KEY } = process.env;
 const authenticateToken = require("./authMiddleware");
-
+const admin = require('firebase-admin'); 
 const stripe = require('stripe')(STRIPE_SECRET_KEY);
+const path = require("path");
+
 
 let app = express(); 
+
 const corsOptions = {
-  origin: ['https://57e1fe74-02a5-4657-b006-2b227766f34f-00-hxfn748x47r1.pike.replit.dev', 'http://localhost:5173'], 
-  methods: 'GET,POST,PUT,DELETE', 
+  origin: [
+    'https://viperwear-apparel.vercel.app',
+    'http://localhost:5178'
+  ], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: 'Authorization,Content-Type',
+  credentials: true,
 };
 
 app.use(cors(corsOptions))
+app.options('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || 'https://viperwear-apparel.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization,Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
 app.use(express.json());
 app.use("/cart", authenticateToken);
+app.use(express.static(path.join(__dirname, '..', 'public'))); 
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -34,13 +50,56 @@ async function getPostgresVersion() {
     client.release();
   }
 }
-const YOUR_DOMAIN = process.env.NODE_ENV === 'production' 
-? 'https://57e1fe74-02a5-4657-b006-2b227766f34f-00-hxfn748x47r1.pike.replit.dev'
-: 'http://localhost:5173';
+const YOUR_DOMAIN = 'https://viperwear-apparel.vercel.app'
+
+//Simple test endpoint for debugging 
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Test route is working!" });
+});
+
+
+
+// POST FOR LOGIN 
+
+app.post("/api/login", authenticateToken, (req, res) => {
+  try {
+    const user = req.user; 
+    res.status(200).json({
+      message: "Login successful",
+      user,
+    });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST FOR SIGNUP
+
+app.post("/api/users", async (req, res) => {
+  const { firebase_uid, email } = req.body;
+
+  const client = await pool.connect();
+  try {
+    const query = "INSERT INTO users (firebase_uid, email) VALUES ($1, $2) RETURNING *";
+    const values = [firebase_uid, email];
+    const result = await client.query(query, values);
+
+    res.json(result.rows[0]); 
+  } catch (err) {
+    console.error('Error inserting user into database:', err.stack);
+    res.status(500).json({ message: "An error occurred while saving the user" });
+  } finally {
+    client.release();
+  }
+});
+
+
+
 
 // POST FOR STRIPE
 
-app.post('/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', async (req, res) => {
   const { items } = req.body;  
 
   const line_items = items.map(item => ({
@@ -60,11 +119,11 @@ app.post('/create-checkout-session', async (req, res) => {
       mode: 'payment',
       payment_method_types: ['card'],
       line_items,
-      success_url: `${YOUR_DOMAIN}/return?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${YOUR_DOMAIN}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${YOUR_DOMAIN}`,
     });
      console.log('Session created successfully:', session)
-    
+
     res.json({ url: session.url });
   } catch (error) {
     console.error('Stripe session creation error:', error);
@@ -74,21 +133,23 @@ app.post('/create-checkout-session', async (req, res) => {
 
 // CHECKOUT SESSION FOR STRIPE
 
-app.get('/retrieve-checkout-session/:session_id', async (req, res) => {
+app.get('/api/retrieve-checkout-session/:session_id', async (req, res) => {
   const session_id = req.params.session_id;
 
   try {
-    // Retrieve the session from Stripe
+   
     const session = await stripe.checkout.sessions.retrieve(session_id);
-    res.json(session);  // Send the session details to the frontend
+    res.json(session);  
   } catch (error) {
     console.error('Error retrieving session:', error);
     res.status(500).json({ error: error.message });
   }
 });
+
+
 //CREATE Add an item to user's cart
 
-app.post("/cart", authenticateToken, async (req, res) => {
+app.post("/api/cart", authenticateToken, async (req, res) => {
   const user_id = req.user.uid;
   const { product_variant_id, quantity } = req.body;
 
@@ -104,7 +165,7 @@ app.post("/cart", authenticateToken, async (req, res) => {
       const updateResult = await client.query(updateQuery, updateValues);
       res.json(updateResult.rows[0]);
     } else {
-     
+
       const insertQuery = "INSERT INTO cart (user_id, product_variant_id, quantity) VALUES ($1, $2, $3) RETURNING *";
       const insertValues = [user_id, product_variant_id, quantity];
       const insertResult = await client.query(insertQuery, insertValues);
@@ -121,7 +182,7 @@ app.post("/cart", authenticateToken, async (req, res) => {
 
 //READ fetches all items in cart
 
-app.get("/cart", authenticateToken, async (req, res) => {
+app.get("/api/cart", authenticateToken, async (req, res) => {
   const client = await pool.connect();
   const user_id = req.user.uid;
   try {
@@ -138,13 +199,13 @@ app.get("/cart", authenticateToken, async (req, res) => {
 
 //UPDATE specific item in cart
 
-app.put("/cart/:id", authenticateToken, async (req, res) => {
+app.put("/api/cart/:id", authenticateToken, async (req, res) => {
   const { quantity } = req.body;
   const { id } = req.params;
   const user_id = req.user.uid
 
   const client = await pool.connect();
-  
+
   try {
      const query = 'UPDATE cart SET quantity = $1 WHERE user_id = $2 AND id = $3 RETURNING *';
     const values = [quantity, user_id, id];
@@ -165,13 +226,13 @@ app.put("/cart/:id", authenticateToken, async (req, res) => {
 
 // DELETE specifc item from a user's cart
 
-app.delete("/cart/:product_variant_id", authenticateToken, async (req, res) => {
+app.delete("/api/cart/:product_variant_id", authenticateToken, async (req, res) => {
   const { product_variant_id } = req.params;
   const user_id = req.user.uid;
   const client = await pool.connect();
 
   try {
-    
+
     const deleteQuery = "DELETE FROM cart WHERE user_id = $1 AND product_variant_id = $2 RETURNING *";
     const values = [user_id, product_variant_id];
     const result = await client.query(deleteQuery, values);
@@ -196,9 +257,9 @@ app.listen(PORT, () => {
   console.log(`App is listening on port ${PORT}`);
 });
 
-
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Viper Apparel Co. API" });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+module.exports = app;
 

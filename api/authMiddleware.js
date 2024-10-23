@@ -13,7 +13,7 @@ const authenticateToken = async (req, res, next) => {
       req.user = decodedToken;
       // Attach the decoded token to the request object
       next(); 
-      //route handlinmg
+      //route handling
     } catch (error) {
       console.error('Token verification error:', error);
       res.status(401).json({ error: 'Unauthorized' }); 
